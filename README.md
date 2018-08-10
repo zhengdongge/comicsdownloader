@@ -1,0 +1,2 @@
+# comicsdownloader
+py scrapy
