@@ -5,6 +5,8 @@ import os
 import urllib
 import zlib
 from bs4 import BeautifulSoup
+import re
+import json
 
 
 class Comics(scrapy.Spider):
@@ -26,9 +28,15 @@ class Comics(scrapy.Spider):
         # 用BeautifulSoup库进行节点的解析
         soup = BeautifulSoup(content, "html5lib")
 
-        title = 'ももいろStudy'
+        # 漫画标题
+        title = soup.title.string[10:]
+        jsarray = soup.find_all("script", {"language": "javascript"})
 
-        for img_mum in range(1,172):
+        #matcharray = re.search(r"Large*cgurl\[1\]", jsarray, re.I)
+        pattern = re.compile(r'^((https|http|ftp|rtsp|mms)?:\/\/)[^\s]+')
+        jsurl = pattern.search(jsarray[1].string)
+        total_img = 172
+        for img_mum in range(1,total_img):
             img_url = 'http://hbhost2.kk9984.pw/file/7160/7160_' + str(img_mum).zfill(3) + '.jpg'
             self.log(img_url)
             self.save_img(str(img_mum).zfill(3), title, img_url)
