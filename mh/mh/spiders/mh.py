@@ -32,9 +32,10 @@ class Comics(scrapy.Spider):
         title = soup.title.string[10:]
         jsarray = soup.find_all("script", {"language": "javascript"})
 
-        #matcharray = re.search(r"Large*cgurl\[1\]", jsarray, re.I)
-        pattern = re.compile(r'^((https|http|ftp|rtsp|mms)?:\/\/)[^\s]+')
-        jsurl = pattern.search(jsarray[1].string)
+
+        pattern = re.compile(r'Large\_cgurl\[1\]')
+        matcharray = re.search(pattern, jsarray, re.I).group()
+
         total_img = 172
         for img_mum in range(1,total_img):
             img_url = 'http://hbhost2.kk9984.pw/file/7160/7160_' + str(img_mum).zfill(3) + '.jpg'
