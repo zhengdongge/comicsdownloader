@@ -13,11 +13,10 @@ class Comics(scrapy.Spider):
     name = "mh"
 
     def start_requests(self):
-        #urls = ['http://18h.mm-cg.com/18H_4485.html']
-        urls = ['http://18h.mm-cg.com/18H_4470.html']
-        for url in urls:
+        #urls = ['http://18h.mm-cg.com/18H_4470.html']
+        for url_num in range(4000, 4001):
+            url = 'http://18h.mm-cg.com/18H_' + str(url_num) + '.html'
             yield scrapy.Request(url=url, callback=self.parse)
-        # yield scrapy.Request(url=url, callback=self.comics_parse)
 
     def parse(self, response):
         # 请求返回的html源码
@@ -33,7 +32,7 @@ class Comics(scrapy.Spider):
         title = soup.title.string[10:]
         jsarray = soup.find_all("script", {"language": "javascript"})
         pattern = re.compile(r'(Large\_cgurl\[1\]\s\=\s\")'
-                             r'(http\:\/\/hbhost2\.imgscloud\.com\/file\/)'
+                             r'(http\:\/\/\w*\.\w*\.\w*\/file\/)'
                              r'([0-9]*)'
                              r'(\/)'
                              r'([0-9]*\_)'
@@ -51,7 +50,7 @@ class Comics(scrapy.Spider):
         total_img = 300
         for img_mum in range(1,total_img):
             img_url = url2 + url3 + url4 + url5 + str(img_mum).zfill(3) + '.jpg'
-            #self.log(img_url)
+            self.log(img_url)
             self.save_img(str(img_mum).zfill(3), title, img_url)
 
 
