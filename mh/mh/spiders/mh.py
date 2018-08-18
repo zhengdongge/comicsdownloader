@@ -13,7 +13,8 @@ class Comics(scrapy.Spider):
     name = "mh"
 
     def start_requests(self):
-        urls = ['http://18h.mm-cg.com/18H_4485.html']
+        #urls = ['http://18h.mm-cg.com/18H_4485.html']
+        urls = ['http://18h.mm-cg.com/18H_4470.html']
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)
         # yield scrapy.Request(url=url, callback=self.comics_parse)
@@ -31,15 +32,26 @@ class Comics(scrapy.Spider):
         # 漫画标题
         title = soup.title.string[10:]
         jsarray = soup.find_all("script", {"language": "javascript"})
-
-
-        pattern = re.compile(r'Large\_cgurl\[1\]')
-        matcharray = re.search(pattern, jsarray, re.I).group()
-
-        total_img = 172
+        pattern = re.compile(r'(Large\_cgurl\[1\]\s\=\s\")'
+                             r'(http\:\/\/hbhost2\.imgscloud\.com\/file\/)'
+                             r'([0-9]*)'
+                             r'(\/)'
+                             r'([0-9]*\_)'
+                             r'([0-9]*\.jpg)'
+                             r'(\")'
+                             )
+        for script in jsarray:
+            match = pattern.search(str(script), re.I | re.U)
+            if match is not None:
+                #url1 = pattern.search(str(script), re.I | re.U).group(1)
+                url2 = pattern.search(str(script), re.I | re.U).group(2)
+                url3 = pattern.search(str(script), re.I | re.U).group(3)
+                url4 = pattern.search(str(script), re.I | re.U).group(4)
+                url5 = pattern.search(str(script), re.I | re.U).group(5)
+        total_img = 300
         for img_mum in range(1,total_img):
-            img_url = 'http://hbhost2.kk9984.pw/file/7160/7160_' + str(img_mum).zfill(3) + '.jpg'
-            self.log(img_url)
+            img_url = url2 + url3 + url4 + url5 + str(img_mum).zfill(3) + '.jpg'
+            #self.log(img_url)
             self.save_img(str(img_mum).zfill(3), title, img_url)
 
 
