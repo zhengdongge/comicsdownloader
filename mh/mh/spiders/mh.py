@@ -6,16 +6,15 @@ import urllib
 import zlib
 from bs4 import BeautifulSoup
 import re
-import json
 
-start_id = 4200
-end_id = 4203
+start_id = 4100
+end_id = 4199
 
 class Comics(scrapy.Spider):
     name = "mh"
 
     def start_requests(self):
-        #urls = ['http://18h.mm-cg.com/18H_4470.html']
+        #通过两个id设定爬取的网页组
         for url_num in range(start_id, end_id + 1):
             url = 'http://18h.mm-cg.com/18H_' + str(url_num) + '.html'
             yield scrapy.Request(url=url, callback=self.parse)
@@ -32,7 +31,9 @@ class Comics(scrapy.Spider):
 
         # 漫画标题
         title = soup.title.string[10:]
+        # 获取在js图片的url
         jsarray = soup.find_all("script", {"language": "javascript"})
+        # 匹配第一图片url list的正则表达式
         pattern = re.compile(r'(Large\_cgurl\[1\]\s\=\s\")'
                              r'(http\:\/\/\w*\.\w*\.\w*\/file\/)'
                              r'([0-9]*)'
@@ -43,17 +44,19 @@ class Comics(scrapy.Spider):
                              )
         for script in jsarray:
             match = pattern.search(str(script), re.I | re.U)
+            # 第一个js并不是目标
             if match is not None:
                 #url1 = pattern.search(str(script), re.I | re.U).group(1)
                 url2 = pattern.search(str(script), re.I | re.U).group(2)
                 url3 = pattern.search(str(script), re.I | re.U).group(3)
                 url4 = pattern.search(str(script), re.I | re.U).group(4)
                 url5 = pattern.search(str(script), re.I | re.U).group(5)
-        total_img = 600
+        total_img = 600 # 假定一本漫画最多有600页
         for img_mum in range(1,total_img):
             img_url = url2 + url3 + url4 + url5 + str(img_mum).zfill(3) + '.jpg'
             #self.log(img_url)
             download = self.save_img(str(img_mum).zfill(3), title, img_url, response)
+            # 返回值为false表示已经产生404 爬完了该漫画的所有图片了
             if not download:
                 break
 
@@ -66,15 +69,17 @@ class Comics(scrapy.Spider):
         document = '/media/gzd/本地磁盘H/漫画/18h/' + str(start_id) + '_' + str(start_id + 99)
         # 每部漫画的文件名以标题命名
         comics_path = document + '/' + title
+        # 创建新的目录
         exists = os.path.exists(comics_path)
         if not exists:
             self.log('create document: ' + title)
             os.makedirs(comics_path)
+        # 创建新的log文件
         exists = os.path.exists(comics_path + '/log.txt')
         if not exists:
             fobj = open(comics_path + '/log.txt', 'a')
-            fobj.write(response.request.url + '\n')
-            fobj.write(img_url + '\n')
+            fobj.write(response.request.url + '\n')  # 保存漫画页面url
+            fobj.write(img_url + '\n')  # 保存漫画图库第一张照片url
             fobj.close()
 
         # 每张图片以页数命名
@@ -91,7 +96,7 @@ class Comics(scrapy.Spider):
             headers = {'User-Agent': user_agent}
 
             req = urllib.request.Request(img_url, headers=headers)
-            response = urllib.request.urlopen(req, timeout=30)
+            response = urllib.request.urlopen(req, timeout=3)
 
             # 请求返回到的数据
             data = response.read()
@@ -111,7 +116,7 @@ class Comics(scrapy.Spider):
         # urllib.request.urlretrieve(img_url, pic_name)
         except Exception as e:
             self.log('save image error.')
-            self.log(e)
+            self.log(e) #基本上是404 表示漫画已经爬完
             return False
 
 
