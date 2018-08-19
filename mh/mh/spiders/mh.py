@@ -29,7 +29,7 @@ class Comics(scrapy.Spider):
 
         # 用BeautifulSoup库进行节点的解析
         soup = BeautifulSoup(content, "html5lib")
-
+        url_num = response.request.url[25:29]
         # 漫画标题
         title = soup.title.string[10:]
         # 获取在js图片的url
@@ -56,21 +56,22 @@ class Comics(scrapy.Spider):
         for img_num in range(1,total_img):
             img_url = url2 + url3 + url4 + url5 + str(img_num).zfill(3) + '.jpg'
             #self.log(img_url)
-            download = self.save_img(str(img_num).zfill(3), title, img_url, response)
+            download = self.save_img(url_num, img_num, title, img_url, response)
             # 返回值为false表示已经产生404 爬完了该漫画的所有图片了
             if not download:
                 #end_img = img_num - 1
                 break
 
-    def save_img(self, img_num, title, img_url, response):
+    def save_img(self, url_num, img_num, title, img_url, response):
         # 将图片保存到本地
         self.log('saving pic: ' + img_url)
 
         # 保存漫画的文件夹
-        document = './download/'
+        #document = './download/'
         dir_num = (start_id // 100 * 100) + 1;
-        #document = '/media/gzd/本地磁盘H/漫画/18h/' + str(dir_num) + '_' + str(dir_num + 99)
+        document = '/media/gzd/本地磁盘H/漫画/18h/' + str(dir_num) + '_' + str(dir_num + 99)
         # 每部漫画的文件名以标题命名
+        title = url_num + '_' + title
         comics_path = document + '/' + title
         # 创建新的目录
         exists = os.path.exists(comics_path)
@@ -86,7 +87,7 @@ class Comics(scrapy.Spider):
             fobj.close()
 
         # 每张图片以页数命名
-        pic_name = comics_path + '/' + img_num + '.jpg'
+        pic_name = comics_path + '/' + str(img_num).zfill(3) + '.jpg'
 
         # 检查图片是否已经下载到本地，若存在则不再重新下载
         exists = os.path.exists(pic_name)
