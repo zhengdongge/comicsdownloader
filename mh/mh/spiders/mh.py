@@ -8,8 +8,8 @@ from bs4 import BeautifulSoup
 import re
 
 #目前id可以从0001一直到6900 建议按照网站目录以**01-**00 100本为一次爬取目标
-start_id = 5401
-end_id = 5500
+start_id = 5501
+end_id = 5600
 
 class Comics(scrapy.Spider):
     name = "mh"
@@ -53,22 +53,23 @@ class Comics(scrapy.Spider):
                 url4 = pattern.search(str(script), re.I | re.U).group(4)
                 url5 = pattern.search(str(script), re.I | re.U).group(5)
         total_img = 600 # 假定一本漫画最多有600页
-        for img_mum in range(1,total_img):
-            img_url = url2 + url3 + url4 + url5 + str(img_mum).zfill(3) + '.jpg'
+        for img_num in range(1,total_img):
+            img_url = url2 + url3 + url4 + url5 + str(img_num).zfill(3) + '.jpg'
             #self.log(img_url)
-            download = self.save_img(str(img_mum).zfill(3), title, img_url, response)
+            download = self.save_img(str(img_num).zfill(3), title, img_url, response)
             # 返回值为false表示已经产生404 爬完了该漫画的所有图片了
             if not download:
+                #end_img = img_num - 1
                 break
 
-    def save_img(self, img_mun, title, img_url, response):
+    def save_img(self, img_num, title, img_url, response):
         # 将图片保存到本地
         self.log('saving pic: ' + img_url)
 
         # 保存漫画的文件夹
-        #document = './download/'
+        document = './download/'
         dir_num = (start_id // 100 * 100) + 1;
-        document = '/media/gzd/本地磁盘H/漫画/18h/' + str(dir_num) + '_' + str(dir_num + 99)
+        #document = '/media/gzd/本地磁盘H/漫画/18h/' + str(dir_num) + '_' + str(dir_num + 99)
         # 每部漫画的文件名以标题命名
         comics_path = document + '/' + title
         # 创建新的目录
@@ -85,7 +86,7 @@ class Comics(scrapy.Spider):
             fobj.close()
 
         # 每张图片以页数命名
-        pic_name = comics_path + '/' + img_mun + '.jpg'
+        pic_name = comics_path + '/' + img_num + '.jpg'
 
         # 检查图片是否已经下载到本地，若存在则不再重新下载
         exists = os.path.exists(pic_name)
