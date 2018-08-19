@@ -8,8 +8,8 @@ from bs4 import BeautifulSoup
 import re
 
 #目前id可以从0001一直到6900 建议按照网站目录以**01-**00 100本为一次爬取目标
-start_id = 5501
-end_id = 5502
+start_id = 5401
+end_id = 5500
 
 class Comics(scrapy.Spider):
     name = "mh"
@@ -59,7 +59,7 @@ class Comics(scrapy.Spider):
             download = self.save_img(url_num, img_num, title, img_url, response)
             # 返回值为false表示已经产生404 爬完了该漫画的所有图片了
             if not download:
-                end_img = img_num - 1
+                #end_img = img_num - 1
                 break
 
     def save_img(self, url_num, img_num, title, img_url, response):
@@ -70,14 +70,17 @@ class Comics(scrapy.Spider):
         #document = './download/'
         dir_num = (start_id // 100 * 100) + 1;
         document = '/media/gzd/本地磁盘H/漫画/18h/' + str(dir_num) + '_' + str(dir_num + 99)
-        # 每部漫画的文件名以页面序号和标题命名
+        # 每部漫画的文件名以标题命名
+
+        comics_path_old = document + '/' + title
         title = url_num + '_' + title
         comics_path = document + '/' + title
         # 创建新的目录
-        exists = os.path.exists(comics_path)
-        if not exists:
+        exists = os.path.exists(comics_path_old)
+        if exists:
             self.log('create document: ' + title)
-            os.makedirs(comics_path)
+            os.rename(comics_path_old, comics_path)
+            quit()
         # 创建新的log文件
         exists = os.path.exists(comics_path + '/log.txt')
         if not exists:
@@ -120,7 +123,7 @@ class Comics(scrapy.Spider):
         # urllib.request.urlretrieve(img_url, pic_name)
         except Exception as e:
             self.log('save image error.')
-            self.log(e) #基本上是404 表示该本漫画已经爬完
+            self.log(e) #基本上是404 表示漫画已经爬完
             return False
 
 
