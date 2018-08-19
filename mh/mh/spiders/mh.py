@@ -8,13 +8,15 @@ from bs4 import BeautifulSoup
 import re
 import json
 
+start_id = 4200
+end_id = 4203
 
 class Comics(scrapy.Spider):
     name = "mh"
 
     def start_requests(self):
         #urls = ['http://18h.mm-cg.com/18H_4470.html']
-        for url_num in range(4000, 4001):
+        for url_num in range(start_id, end_id + 1):
             url = 'http://18h.mm-cg.com/18H_' + str(url_num) + '.html'
             yield scrapy.Request(url=url, callback=self.parse)
 
@@ -47,26 +49,33 @@ class Comics(scrapy.Spider):
                 url3 = pattern.search(str(script), re.I | re.U).group(3)
                 url4 = pattern.search(str(script), re.I | re.U).group(4)
                 url5 = pattern.search(str(script), re.I | re.U).group(5)
-        total_img = 300
+        total_img = 600
         for img_mum in range(1,total_img):
             img_url = url2 + url3 + url4 + url5 + str(img_mum).zfill(3) + '.jpg'
-            self.log(img_url)
-            self.save_img(str(img_mum).zfill(3), title, img_url)
+            #self.log(img_url)
+            download = self.save_img(str(img_mum).zfill(3), title, img_url, response)
+            if not download:
+                break
 
-
-    def save_img(self, img_mun, title, img_url):
+    def save_img(self, img_mun, title, img_url, response):
         # 将图片保存到本地
         self.log('saving pic: ' + img_url)
 
         # 保存漫画的文件夹
-        document = './download'
-
+        #document = './download/'
+        document = '/media/gzd/本地磁盘H/漫画/18h/' + str(start_id) + '_' + str(start_id + 99)
         # 每部漫画的文件名以标题命名
         comics_path = document + '/' + title
         exists = os.path.exists(comics_path)
         if not exists:
             self.log('create document: ' + title)
             os.makedirs(comics_path)
+        exists = os.path.exists(comics_path + '/log.txt')
+        if not exists:
+            fobj = open(comics_path + '/log.txt', 'a')
+            fobj.write(response.request.url + '\n')
+            fobj.write(img_url + '\n')
+            fobj.close()
 
         # 每张图片以页数命名
         pic_name = comics_path + '/' + img_mun + '.jpg'
@@ -75,7 +84,7 @@ class Comics(scrapy.Spider):
         exists = os.path.exists(pic_name)
         if exists:
             self.log('pic exists: ' + pic_name)
-            return
+            return True
 
         try:
             user_agent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
@@ -97,11 +106,13 @@ class Comics(scrapy.Spider):
             fp.close
 
             self.log('save image finished:' + pic_name)
+            return True
 
         # urllib.request.urlretrieve(img_url, pic_name)
         except Exception as e:
             self.log('save image error.')
             self.log(e)
+            return False
 
 
 
