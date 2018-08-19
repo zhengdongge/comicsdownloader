@@ -7,8 +7,9 @@ import zlib
 from bs4 import BeautifulSoup
 import re
 
-start_id = 4100
-end_id = 4199
+#目前id可以从0001一直到6900 建议按照网站目录以**01-**00 100本为一次爬取目标
+start_id = 5401
+end_id = 5500
 
 class Comics(scrapy.Spider):
     name = "mh"
@@ -16,7 +17,7 @@ class Comics(scrapy.Spider):
     def start_requests(self):
         #通过两个id设定爬取的网页组
         for url_num in range(start_id, end_id + 1):
-            url = 'http://18h.mm-cg.com/18H_' + str(url_num) + '.html'
+            url = 'http://18h.mm-cg.com/18H_' + str(url_num).zfill(4) + '.html'
             yield scrapy.Request(url=url, callback=self.parse)
 
     def parse(self, response):
@@ -66,7 +67,8 @@ class Comics(scrapy.Spider):
 
         # 保存漫画的文件夹
         #document = './download/'
-        document = '/media/gzd/本地磁盘H/漫画/18h/' + str(start_id) + '_' + str(start_id + 99)
+        dir_num = (start_id // 100 * 100) + 1;
+        document = '/media/gzd/本地磁盘H/漫画/18h/' + str(dir_num) + '_' + str(dir_num + 99)
         # 每部漫画的文件名以标题命名
         comics_path = document + '/' + title
         # 创建新的目录
