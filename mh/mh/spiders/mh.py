@@ -7,9 +7,9 @@ import zlib
 from bs4 import BeautifulSoup
 import re
 
-#目前id可以从0001一直到6900 建议按照网站目录以**01-**00 100本为一次爬取目标
-start_id = 5501  # 4001 4071
-end_id = 5600  # 4100 4071
+#目前id可以从0001一直到6900 建议按照网站目录以**01-**00 100本为一次爬取目标 后面给出了四组参考
+start_id = 4401  # 4001 4001 4489 4071
+end_id = 5500  # 4100 5000 6837 4071
 
 class Comics(scrapy.Spider):
     name = "mh"
@@ -60,8 +60,8 @@ class Comics(scrapy.Spider):
             download = self.save_img(url_num, img_num, title, img_url, end_img, response)
             # 返回值为false表示已经产生404 爬完了该漫画的所有图片了
             if not download:
-                end_img = img_num - 1
-                self.save_img(url_num, img_num, title, img_url, end_img, response)  # 修改文件夹名
+                #end_img = img_num - 1
+                #self.save_img(url_num, img_num, title, img_url, end_img, response)  # 修改文件夹名
                 break
 
     def save_img(self, url_num, img_num, title, img_url, end_img, response):
@@ -70,18 +70,19 @@ class Comics(scrapy.Spider):
 
         # 保存漫画的文件夹
         #document = './download/'
-        dir_num = (start_id // 100 * 100) + 1;
+        dir_num = ((int(url_num)-1) // 100 * 100) + 1
         document = '/media/gzd/本地磁盘H/漫画/18h/' + str(dir_num) + '_' + str(dir_num + 99)
         # 每部漫画的文件名以页面序号和标题命名
         title = url_num + '_' + title
         comics_path = document + '/' + title
-        # 创建新的目录
+        # 查找是否有上次没下完的目录 因为并不知道最后的总标题数 所以只能查找 不能直接os.path.exist
         os.chdir(document)
         for folder in os.listdir(document):
             if title in folder:
-                comics_path = os.path.relpath(folder, start=document)
+                comics_path = os.path.relpath(folder, start=document)  # 如有则继续下载
                 break
         exists = os.path.exists(comics_path)
+        # 没下载过 创建新的文件夹
         if not exists:
             self.log('create document: ' + title)
             os.makedirs(comics_path)
