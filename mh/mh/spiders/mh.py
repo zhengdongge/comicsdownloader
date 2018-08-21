@@ -52,7 +52,7 @@ class Comics(scrapy.Spider):
                 url3 = pattern.search(str(script), re.I | re.U).group(3)
                 url4 = pattern.search(str(script), re.I | re.U).group(4)
                 url5 = pattern.search(str(script), re.I | re.U).group(5)
-        total_img = 600  # 假定一本漫画最多有600页
+        total_img = 999  # 假定一本漫画最多999页
         end_img = 0
         for img_num in range(1,total_img):
             img_url = url2 + url3 + url4 + url5 + str(img_num).zfill(3) + '.jpg'
@@ -75,6 +75,12 @@ class Comics(scrapy.Spider):
         # 每部漫画的文件名以页面序号和标题命名
         title = url_num + '_' + title
         comics_path = document + '/' + title
+
+        exists = os.path.exists(document)
+        # 没下载过 创建新的总文件夹
+        if not exists:
+            self.log('create dir: ' + document)
+            os.makedirs(document)
         # 查找是否有上次没下完的目录 因为并不知道最后的总标题数 所以只能查找 不能直接os.path.exist
         os.chdir(document)
         for folder in os.listdir(document):
@@ -84,7 +90,7 @@ class Comics(scrapy.Spider):
         exists = os.path.exists(comics_path)
         # 没下载过 创建新的文件夹
         if not exists:
-            self.log('create document: ' + title)
+            self.log('create dir: ' + title)
             os.makedirs(comics_path)
         # 创建新的log文件
         exists = os.path.exists(comics_path + '/log.txt')
