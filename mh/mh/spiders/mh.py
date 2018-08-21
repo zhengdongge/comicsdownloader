@@ -52,7 +52,7 @@ class Comics(scrapy.Spider):
                 url3 = pattern.search(str(script), re.I | re.U).group(3)
                 url4 = pattern.search(str(script), re.I | re.U).group(4)
                 url5 = pattern.search(str(script), re.I | re.U).group(5)
-        total_img = 999  # 假定一本漫画最多999页
+        total_img = 9999  # 假定一本漫画最多9999页 5036就有1165页 不会影响zfill 但会影响clearxxp.py
         end_img = 0
         for img_num in range(1,total_img):
             img_url = url2 + url3 + url4 + url5 + str(img_num).zfill(3) + '.jpg'
