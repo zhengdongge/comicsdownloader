@@ -8,8 +8,8 @@ from bs4 import BeautifulSoup
 import re
 
 #目前id可以从0001一直到6900 建议按照网站目录以**01-**00 100本为一次爬取目标 后面给出了四组参考
-start_id = 4401  # 4001 4001 4489 4071
-end_id = 5500  # 4100 5000 6837 4071
+start_id = 4001  # 4001 4001 4489 4071
+end_id = 5600  # 4100 5000 6837 4071
 
 class Comics(scrapy.Spider):
     name = "mh"
@@ -60,8 +60,8 @@ class Comics(scrapy.Spider):
             download = self.save_img(url_num, img_num, title, img_url, end_img, response)
             # 返回值为false表示已经产生404 爬完了该漫画的所有图片了
             if not download:
-                #end_img = img_num - 1
-                #self.save_img(url_num, img_num, title, img_url, end_img, response)  # 修改文件夹名
+                end_img = img_num - 1
+                self.save_img(url_num, img_num, title, img_url, end_img, response)  # 修改文件夹名
                 break
 
     def save_img(self, url_num, img_num, title, img_url, end_img, response):
