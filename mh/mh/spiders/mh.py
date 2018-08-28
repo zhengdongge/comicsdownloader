@@ -8,8 +8,8 @@ from bs4 import BeautifulSoup
 import re
 
 #目前id可以从0001一直到6900 建议按照网站目录以**01-**00 100本为一次爬取目标 后面给出了四组参考
-start_id = 4001  # 4001 4001 4489 4071
-end_id = 5600  # 4100 5000 6837 4071
+start_id = 1001  # 4001 4001 4489 4071
+end_id = 2000  # 4100 5000 6837 4071
 
 class Comics(scrapy.Spider):
     name = "mh"
@@ -69,11 +69,12 @@ class Comics(scrapy.Spider):
         self.log('saving pic: ' + img_url)
 
         # 保存漫画的文件夹
-        #document = './download/'
-        dir_num = ((int(url_num)-1) // 100 * 100) + 1
-        document = '/media/gzd/本地磁盘H/漫画/18h/' + str(dir_num) + '_' + str(dir_num + 99)
+        document = '/home/gzd/Documents/programming/git/clone/comicsdownloader/mh/download/'
+        #document = '/media/gzd/本地磁盘H/漫画/18h/'
+        dir_num = ((int(url_num) - 1) // 100 * 100) + 1
+        document = document + str(dir_num).zfill(4) + '_' + str(dir_num + 99).zfill(4)
         # 每部漫画的文件名以页面序号和标题命名
-        title = url_num + '_' + title
+        title = url_num.zfill(4) + '_' + title
         comics_path = document + '/' + title
 
         exists = os.path.exists(document)
