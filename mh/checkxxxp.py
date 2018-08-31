@@ -1,11 +1,11 @@
 import os
 
-start_id = 4203#4001
-end_id = 4203#5600
+start_id = 1
+end_id = 1000
 checklist = []
 for url_num in range(start_id, end_id+1):
     dir_num = ((int(url_num) - 1) // 100 * 100) + 1
-    document = '/media/gzd/本地磁盘H/漫画/18h/' + str(dir_num) + '_' + str(dir_num + 99)
+    document = '/media/gzd/本地磁盘H/漫画/18h/' + str(dir_num).zfill(4) + '_' + str(dir_num + 99).zfill(4)
     os.chdir(document)
     for folder in os.listdir(document):
         if str(url_num) in folder:

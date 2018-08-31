@@ -52,7 +52,7 @@ class Comics(scrapy.Spider):
                 url3 = pattern.search(str(script), re.I | re.U).group(3)
                 url4 = pattern.search(str(script), re.I | re.U).group(4)
                 url5 = pattern.search(str(script), re.I | re.U).group(5)
-        total_img = 9999  # 假定一本漫画最多9999页 5036就有1165页 不会影响zfill 但会影响clearxxp.py
+        total_img = 9999  # 假定一本漫画最多9999页 5036就有1165页 不会影响zfill 但会影响clearxxxp.py
         end_img = 0
         for img_num in range(1,total_img):
             img_url = url2 + url3 + url4 + url5 + str(img_num).zfill(3) + '.jpg'
@@ -69,8 +69,8 @@ class Comics(scrapy.Spider):
         self.log('saving pic: ' + img_url)
 
         # 保存漫画的文件夹
-        document = '/home/gzd/Documents/programming/git/clone/comicsdownloader/mh/download/'
-        #document = '/media/gzd/本地磁盘H/漫画/18h/'
+        #document = '/home/gzd/Documents/programming/git/clone/comicsdownloader/mh/download/'
+        document = '/media/gzd/本地磁盘H/漫画/18h/'
         dir_num = ((int(url_num) - 1) // 100 * 100) + 1
         document = document + str(dir_num).zfill(4) + '_' + str(dir_num + 99).zfill(4)
         # 每部漫画的文件名以页面序号和标题命名
